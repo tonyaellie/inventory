@@ -24,6 +24,17 @@ export const appRouter = createTRPCRouter({
         data: input,
       })
     ),
+  getItems: protectedProcedure
+    .query(async () => prisma.items.findMany()),
+  deleteItem: protectedProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ input }) =>
+      prisma.items.delete({
+        where: {
+          id: input.id,
+        },
+      })
+    ),
 });
 
 // export type definition of API

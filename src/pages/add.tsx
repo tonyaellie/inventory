@@ -38,9 +38,9 @@ const CreateNewItem = () => {
     name: '',
     description: '',
     image: '',
-    category: '' as Category,
-    quantity: 0,
-    bag: 0,
+    category: 'BATHROOM' as Category,
+    quantity: 1,
+    bag: 1,
   });
 
   const addItem = api.addItem.useMutation();
@@ -49,6 +49,14 @@ const CreateNewItem = () => {
     e.preventDefault();
     try {
       await addItem.mutateAsync(formState);
+      setFormState({
+        name: '',
+        description: '',
+        image: '',
+        category: 'BATHROOM' as Category,
+        quantity: 1,
+        bag: 1,
+      });
     } catch (e) {
       // TODO: handle error better
       if (e instanceof TRPCClientError) {

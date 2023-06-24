@@ -16,19 +16,34 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </Head>
       <main className="text-slate-200">
         <header className="mb-2 flex gap-2 border-b border-slate-200 p-2">
-          <button
+          <Link
+            href="/"
             className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
-            onClick={() => void signOut()}
           >
-            Sign out
-          </button>
-          <button
+            Home
+          </Link>
+          <Link
+            href="/add"
             className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
-            onClick={() => void signIn()}
           >
-            Sign in
-          </button>
-          <Link href="/add/" className=''>Add item</Link>
+            Add item
+          </Link>
+          <div className="flex-grow" />
+          {sessionData?.user.name === 'tonya_' ? (
+            <button
+              onClick={() => void signOut()}
+              className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
+            >
+              Sign out
+            </button>
+          ) : (
+            <button
+              onClick={() => void signIn()}
+              className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
+            >
+              Sign in
+            </button>
+          )}
         </header>
         {sessionData?.user.name === 'tonya_' ? (
           <div className="mx-4">{children}</div>

@@ -23,13 +23,13 @@ enum Category {
 }
 
 model items {
-    id          Int       @id @default(autoincrement())
-    name        String    @db.VarChar(255)
-    description String    @db.VarChar(1023)
-    image       String    @db.VarChar(255)
+    id          Int      @id @default(autoincrement())
+    name        String   @db.VarChar(255)
+    description String   @db.VarChar(1023)
+    image       String   @db.VarChar(255)
     category    Category
-    quantity    Int       @db.TinyInt
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime? @updatedAt
-    bag         Int       @db.TinyInt
+    quantity    Int      @db.TinyInt
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    bag         Int      @db.TinyInt
 }
