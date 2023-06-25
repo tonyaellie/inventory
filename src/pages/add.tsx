@@ -41,8 +41,6 @@ const CreateNewItem = () => {
     quantity: 1,
     bag: 1,
   });
-  const [height, setHeight] = useState(1);
-
   const addItem = api.addItem.useMutation();
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {

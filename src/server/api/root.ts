@@ -28,20 +28,37 @@ export const appRouter = createTRPCRouter({
   getItems: protectedProcedure.query(async () => prisma.items.findMany()),
   deleteItem: protectedProcedure
     .input(z.object({ id: z.number().int().positive() }))
-    // TODO: also delete image from uploadthing
     .mutation(async ({ input }) => {
       const item = await prisma.items.delete({
         where: {
           id: input.id,
         },
       });
-      console.log(item.image.replace('https://uploadthing.com/f/', ''), item.image);
       const deleteImage = await utapi.deleteFiles([
         item.image.replace('https://uploadthing.com/f/', ''),
       ]);
       console.log('deleted', item.name, deleteImage);
       return item;
     }),
+  updateItem: protectedProcedure
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+        name: z.string(),
+        description: z.string(),
+        category: z.enum(['KITCHEN', 'BEDROOM', 'BATHROOM', 'PERSONAL']),
+        quantity: z.number().int().positive(),
+        bag: z.number().int().positive().lt(10),
+      })
+    )
+    .mutation(async ({ input }) =>
+      prisma.items.update({
+        where: {
+          id: input.id,
+        },
+        data: input,
+      })
+    ),
 });
 
 // export type definition of API
