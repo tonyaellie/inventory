@@ -15,6 +15,7 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// TODO: make category a table
 enum Category {
     KITCHEN
     BEDROOM

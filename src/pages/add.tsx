@@ -1,4 +1,3 @@
-import { signIn, signOut, useSession } from 'next-auth/react';
 import { api } from '@/utils/api';
 import { UploadButton } from '@/utils/uploadthing';
 import '@uploadthing/react/styles.css';
@@ -42,6 +41,7 @@ const CreateNewItem = () => {
     quantity: 1,
     bag: 1,
   });
+  const [height, setHeight] = useState(1);
 
   const addItem = api.addItem.useMutation();
 
@@ -66,41 +66,45 @@ const CreateNewItem = () => {
   };
 
   return (
-    <form className="flex max-w-xl flex-col" onSubmit={(e) => {
-      void submit(e);
-    }}>
-      <label>
-        Name:
+    <form
+      className="flex flex-col gap-2"
+      onSubmit={(e) => {
+        void submit(e);
+      }}
+    >
+      <label className="flex flex-col gap-1 font-bold">
+        Name
         <input
+          autoComplete="off"
           type="text"
           name="itemname"
-          className="bg-black"
+          className="w-full rounded-lg bg-black px-2 py-1 font-normal"
           onChange={(e) => setFormState({ ...formState, name: e.target.value })}
           value={formState.name}
         />
       </label>
-      <label>
-        Description:
+      <label className="flex flex-col gap-1 font-bold">
+        Description
         <textarea
           name="description"
-          className="bg-black"
+          className="h-48 resize-none rounded-lg bg-black px-2 py-1 font-normal"
           onChange={(e) =>
             setFormState({ ...formState, description: e.target.value })
           }
           value={formState.description}
         />
       </label>
-      <label>
-        Image:
+      <label className="flex flex-col gap-1 font-bold">
+        Image
         <ImageUploader
           image={formState.image}
           setImage={(image) => setFormState({ ...formState, image })}
         />
       </label>
-      <label>
-        Category:
+      <label className="flex flex-col gap-1 font-bold">
+        Category
         <select
-          className="bg-black"
+          className="rounded-lg bg-black px-2 py-1 font-normal"
           onChange={(e) =>
             setFormState({ ...formState, category: e.target.value as Category })
           }
@@ -113,22 +117,30 @@ const CreateNewItem = () => {
           ))}
         </select>
       </label>
-      <label>
-        Quantity:
+      <label className="flex flex-col gap-1 font-bold">
+        Quantity
         <input
-          type="number"
+          type="text"
           name="quantity"
-          className="bg-black"
-          onChange={(e) =>
-            setFormState({ ...formState, quantity: Number(e.target.value) })
-          }
+          className="rounded-lg bg-black px-2 py-1 font-normal"
+          onChange={(e) => {
+            if (Number(e.target.value) > 0 || e.target.value === '') {
+              setFormState({
+                ...formState,
+                quantity:
+                  e.target.value === ''
+                    ? ('' as unknown as number)
+                    : Number(e.target.value),
+              });
+            }
+          }}
           value={formState.quantity}
         />
       </label>
-      <label>
-        Bag:
+      <label className="flex flex-col gap-1 font-bold">
+        Bag
         <select
-          className="bg-black"
+          className="rounded-lg bg-black px-2 py-1 font-normal"
           onChange={(e) =>
             setFormState({ ...formState, bag: Number(e.target.value) })
           }
