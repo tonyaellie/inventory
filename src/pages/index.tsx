@@ -257,97 +257,101 @@ const Home = () => {
 
   return (
     <Layout>
-      <div>
-        <label>
-          Search
-          <input
-            type="text"
-            className="mb-2 ml-2 rounded border bg-black px-2 py-1"
-            onChange={(e) => setSearch(e.target.value)}
-            value={search}
-          />
-        </label>
-      </div>
-      <div className="mb-2 flex w-min select-none flex-col gap-2 rounded-lg bg-black p-2">
-        <div className="flex gap-2">
-          {Object.keys(Category).map((category) => (
-            <span
-              key={category}
-              className={`cursor-pointer rounded-lg px-2 capitalize ${
-                filter.category === category ? 'bg-violet-900' : 'bg-violet-700'
-              }`}
-              onClick={() => {
-                setFilter({
-                  ...filter,
-                  category:
-                    filter.category === category
-                      ? undefined
-                      : (category as Category),
-                });
-              }}
-            >
-              {category.toLowerCase()}
-            </span>
-          ))}
+      <div className="flex flex-col items-center gap-2">
+        <div>
+          <label>
+            Search
+            <input
+              type="text"
+              className="ml-2 rounded border bg-black px-2 py-1"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+            />
+          </label>
         </div>
-        <div className="flex gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="flex select-none flex-col gap-2 rounded-lg bg-black p-2">
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(Category).map((category) => (
+              <span
+                key={category}
+                className={`cursor-pointer rounded-lg px-2 capitalize ${
+                  filter.category === category
+                    ? 'bg-violet-900'
+                    : 'bg-violet-700'
+                }`}
+                onClick={() => {
+                  setFilter({
+                    ...filter,
+                    category:
+                      filter.category === category
+                        ? undefined
+                        : (category as Category),
+                  });
+                }}
+              >
+                {category.toLowerCase()}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <span
+                key={i}
+                className={`cursor-pointer rounded-lg px-2 ${
+                  filter.bag === i + 1 ? 'bg-purple-900' : 'bg-purple-700'
+                }`}
+                onClick={() => {
+                  setFilter({
+                    ...filter,
+                    bag: filter.bag === i + 1 ? undefined : i + 1,
+                  });
+                }}
+              >
+                Bag {i + 1}
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
             <span
-              key={i}
               className={`cursor-pointer rounded-lg px-2 ${
-                filter.bag === i + 1 ? 'bg-purple-900' : 'bg-purple-700'
+                filter.packed === true ? 'bg-fuchsia-900' : 'bg-fuchsia-700'
               }`}
               onClick={() => {
                 setFilter({
                   ...filter,
-                  bag: filter.bag === i + 1 ? undefined : i + 1,
+                  packed: filter.packed === true ? undefined : true,
                 });
               }}
             >
-              Bag {i + 1}
+              Packed
             </span>
-          ))}
+            <span
+              className={`cursor-pointer rounded-lg px-2 ${
+                filter.packed === false ? 'bg-fuchsia-900' : 'bg-fuchsia-700'
+              }`}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  packed: filter.packed === false ? undefined : false,
+                });
+              }}
+            >
+              Unpacked
+            </span>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <span
-            className={`cursor-pointer rounded-lg px-2 ${
-              filter.packed === true ? 'bg-fuchsia-900' : 'bg-fuchsia-700'
-            }`}
-            onClick={() => {
-              setFilter({
-                ...filter,
-                packed: filter.packed === true ? undefined : true,
-              });
-            }}
-          >
-            Packed
-          </span>
-          <span
-            className={`cursor-pointer rounded-lg px-2 ${
-              filter.packed === false ? 'bg-fuchsia-900' : 'bg-fuchsia-700'
-            }`}
-            onClick={() => {
-              setFilter({
-                ...filter,
-                packed: filter.packed === false ? undefined : false,
-              });
-            }}
-          >
-            Unpacked
-          </span>
+        <div className="flex w-full flex-col gap-2">
+          {(fuse.length === 0 ? items.data : fuse.map((item) => item.item))
+            ?.filter(
+              (item) =>
+                (!filter.category || item.category === filter.category) &&
+                (!filter.bag || item.bag === filter.bag) &&
+                (filter.packed === undefined || item.packed === filter.packed)
+            )
+            .map((item) => (
+              <ItemDisplay {...item} key={item.id} />
+            ))}
         </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        {(fuse.length === 0 ? items.data : fuse.map((item) => item.item))
-          ?.filter(
-            (item) =>
-              (!filter.category || item.category === filter.category) &&
-              (!filter.bag || item.bag === filter.bag) &&
-              (filter.packed === undefined || item.packed === filter.packed)
-          )
-          .map((item) => (
-            <ItemDisplay {...item} key={item.id} />
-          ))}
       </div>
     </Layout>
   );
