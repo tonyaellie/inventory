@@ -40,6 +40,7 @@ const CreateNewItem = () => {
     category: 'BATHROOM' as Category,
     quantity: 1,
     bag: 1,
+    packed: false,
   });
   const addItem = api.addItem.useMutation();
 
@@ -54,6 +55,7 @@ const CreateNewItem = () => {
         category: 'BATHROOM' as Category,
         quantity: 1,
         bag: 1,
+        packed: false,
       });
     } catch (e) {
       // TODO: handle error better
@@ -157,6 +159,18 @@ const CreateNewItem = () => {
             4
           </option>
         </select>
+      </label>
+      <label className="flex flex-col gap-1 font-bold">
+        Packed
+        <input
+          type="checkbox"
+          name="packed"
+          className="h-6 w-6"
+          onChange={(e) =>
+            setFormState({ ...formState, packed: e.target.checked })
+          }
+          checked={formState.packed}
+        />
       </label>
       <input type="submit" value="Submit" />
     </form>

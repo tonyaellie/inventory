@@ -33,4 +33,5 @@ model items {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
     bag         Int      @db.TinyInt
+    packed      Boolean  @default(false)
 }

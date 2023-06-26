@@ -18,6 +18,7 @@ export const appRouter = createTRPCRouter({
         category: z.enum(['KITCHEN', 'BEDROOM', 'BATHROOM', 'PERSONAL']),
         quantity: z.number().int().positive(),
         bag: z.number().int().positive().lt(10),
+        packed: z.boolean(),
       })
     )
     .mutation(async ({ input }) =>
@@ -49,6 +50,7 @@ export const appRouter = createTRPCRouter({
         category: z.enum(['KITCHEN', 'BEDROOM', 'BATHROOM', 'PERSONAL']),
         quantity: z.number().int().positive(),
         bag: z.number().int().positive().lt(10),
+        packed: z.boolean(),
       })
     )
     .mutation(async ({ input }) =>

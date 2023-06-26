@@ -5,11 +5,14 @@ import Image from 'next/image';
 import { type FormEvent, useState } from 'react';
 import Fuse from 'fuse.js';
 import { TRPCClientError } from '@trpc/client';
+import { setConfig } from 'next/config';
+import fuse from 'fuse.js';
 
 const Home = () => {
   const [filter, setFilter] = useState<{
     category?: Category;
     bag?: number;
+    packed?: boolean;
   }>({});
   const [search, setSearch] = useState<string>('');
 
@@ -23,6 +26,7 @@ const Home = () => {
     category: Category;
     quantity: number;
     bag: number;
+    packed: boolean;
   }) => {
     const [showEdit, setShowEdit] = useState(false);
     const [editState, setEditState] = useState({
@@ -31,12 +35,15 @@ const Home = () => {
       category: item.category,
       quantity: item.quantity,
       bag: item.bag,
+      packed: item.packed,
     });
 
     const deleteItem = api.deleteItem.useMutation();
     const updateItem = api.updateItem.useMutation();
 
     const deleteClicked = async () => {
+      if (!confirm('Are you sure you want to delete this item?')) return;
+
       try {
         await deleteItem.mutateAsync({ id: item.id });
         await items.refetch();
@@ -71,28 +78,43 @@ const Home = () => {
                 <span className="font-bold">{item.name}</span>
                 <span>{item.quantity}×</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex select-none flex-wrap gap-2">
                 <span
-                  className="cursor-pointer rounded-lg bg-violet-700 px-2 lowercase"
+                  className="cursor-pointer rounded-lg bg-purple-700 px-2 capitalize"
                   onClick={() => {
                     setFilter({
                       ...filter,
-                      category: item.category,
+                      category:
+                        filter.category === item.category
+                          ? undefined
+                          : item.category,
                     });
                   }}
                 >
-                  {item.category}
+                  {item.category.toLowerCase()}
+                </span>
+                <span
+                  className="cursor-pointer rounded-lg bg-violet-700 px-2"
+                  onClick={() => {
+                    setFilter({
+                      ...filter,
+                      bag: filter.bag === item.bag ? undefined : item.bag,
+                    });
+                  }}
+                >
+                  Bag {item.bag}
                 </span>
                 <span
                   className="cursor-pointer rounded-lg bg-fuchsia-700 px-2"
                   onClick={() => {
                     setFilter({
                       ...filter,
-                      bag: item.bag,
+                      packed:
+                        filter.packed === item.packed ? undefined : item.packed,
                     });
                   }}
                 >
-                  Bag {item.bag}
+                  {item.packed ? 'Packed' : 'Unpacked'}
                 </span>
               </div>
               <div>{item.description}</div>
@@ -207,6 +229,18 @@ const Home = () => {
               </option>
             </select>
           </label>
+          <label className="flex flex-col gap-1 font-bold">
+            Packed
+            <input
+              type="checkbox"
+              name="packed"
+              className="h-6 w-6"
+              onChange={(e) =>
+                setEditState({ ...editState, packed: e.target.checked })
+              }
+              checked={editState.packed}
+            />
+          </label>
           <input type="submit" value="Submit" />
         </form>
       </div>
@@ -234,42 +268,82 @@ const Home = () => {
           />
         </label>
       </div>
-      <div
-        className={`flex gap-2 ${filter.category || filter.bag ? 'pb-2' : ''}`}
-      >
-        {filter.category && (
+      <div className="mb-2 flex w-min select-none flex-col gap-2 rounded-lg bg-black p-2">
+        <div className="flex gap-2">
+          {Object.keys(Category).map((category) => (
+            <span
+              key={category}
+              className={`cursor-pointer rounded-lg px-2 capitalize ${
+                filter.category === category ? 'bg-violet-900' : 'bg-violet-700'
+              }`}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  category:
+                    filter.category === category
+                      ? undefined
+                      : (category as Category),
+                });
+              }}
+            >
+              {category.toLowerCase()}
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <span
+              key={i}
+              className={`cursor-pointer rounded-lg px-2 ${
+                filter.bag === i + 1 ? 'bg-purple-900' : 'bg-purple-700'
+              }`}
+              onClick={() => {
+                setFilter({
+                  ...filter,
+                  bag: filter.bag === i + 1 ? undefined : i + 1,
+                });
+              }}
+            >
+              Bag {i + 1}
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
           <span
-            className="cursor-pointer rounded-lg bg-violet-700 px-2 lowercase"
+            className={`cursor-pointer rounded-lg px-2 ${
+              filter.packed === true ? 'bg-fuchsia-900' : 'bg-fuchsia-700'
+            }`}
             onClick={() => {
               setFilter({
                 ...filter,
-                category: undefined,
+                packed: filter.packed === true ? undefined : true,
               });
             }}
           >
-            {filter.category}
+            Packed
           </span>
-        )}
-        {filter.bag && (
           <span
-            className="cursor-pointer rounded-lg bg-fuchsia-700 px-2"
+            className={`cursor-pointer rounded-lg px-2 ${
+              filter.packed === false ? 'bg-fuchsia-900' : 'bg-fuchsia-700'
+            }`}
             onClick={() => {
               setFilter({
                 ...filter,
-                bag: undefined,
+                packed: filter.packed === false ? undefined : false,
               });
             }}
           >
-            Bag {filter.bag}
+            Unpacked
           </span>
-        )}
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         {(fuse.length === 0 ? items.data : fuse.map((item) => item.item))
           ?.filter(
             (item) =>
               (!filter.category || item.category === filter.category) &&
-              (!filter.bag || item.bag === filter.bag)
+              (!filter.bag || item.bag === filter.bag) &&
+              (filter.packed === undefined || item.packed === filter.packed)
           )
           .map((item) => (
             <ItemDisplay {...item} key={item.id} />
