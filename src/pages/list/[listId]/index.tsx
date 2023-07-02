@@ -17,12 +17,15 @@ const Home = () => {
 
   const listId = useListId();
 
+  // TODO: debug why this is being fetched each time the filter changes
   const list = api.getList.useQuery(
     { listId: listId || -1, includeCategories: true, includeItems: true },
     {
       enabled: !!listId,
     }
   );
+  const deleteItem = api.deleteItem.useMutation();
+  const updateItem = api.updateItem.useMutation();
 
   if (!listId) return <Layout>Loading Id...</Layout>;
 
@@ -67,18 +70,12 @@ const Home = () => {
       bag: item.bag,
       packed: item.packed,
     });
-
-    const items = api.getList.useQuery({ listId }, { enabled: !!listId });
-
-    const deleteItem = api.deleteItem.useMutation();
-    const updateItem = api.updateItem.useMutation();
-
     const deleteClicked = async () => {
       if (!confirm('Are you sure you want to delete this item?')) return;
 
       try {
         await deleteItem.mutateAsync({ id: item.id });
-        await items.refetch();
+        await list.refetch();
       } catch (e) {
         // TODO: handle error better
         if (e instanceof TRPCClientError) {
@@ -92,7 +89,7 @@ const Home = () => {
       try {
         // TODO: enable this
         await updateItem.mutateAsync({ id: item.id, listId, ...editState });
-        await items.refetch();
+        await list.refetch();
       } catch (e) {
         // TODO: handle error better
         if (e instanceof TRPCClientError) {
