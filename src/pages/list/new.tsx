@@ -1,7 +1,9 @@
+import { useState } from 'react';
+
+import { TRPCClientError } from '@trpc/client';
+
 import { Layout } from '@/components/Layout';
 import { api } from '@/utils/api';
-import { TRPCClientError } from '@trpc/client';
-import { useState } from 'react';
 
 const New = () => {
   const [config, setConfig] = useState({

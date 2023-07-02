@@ -1,6 +1,7 @@
-import { prisma } from '@/server/db';
 import { type NextApiHandler } from 'next';
 import { utapi } from 'uploadthing/server';
+
+import { prisma } from '@/server/db';
 
 const handler: NextApiHandler = async (req, res) => {
   const unusedImages = await prisma.unusedImages.findMany();

@@ -1,6 +1,6 @@
-import { useSession, signOut, signIn } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useSession, signOut, signIn } from 'next-auth/react';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const { data: sessionData } = useSession();

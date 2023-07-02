@@ -1,6 +1,7 @@
+import Link from 'next/link';
+
 import { Layout } from '@/components/Layout';
 import { api } from '@/utils/api';
-import Link from 'next/link';
 
 const Home = () => {
   const lists = api.getLists.useQuery();

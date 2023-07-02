@@ -1,6 +1,7 @@
-import { createUploadthing, type FileRouter } from 'uploadthing/next-legacy';
-import { authOptions } from './auth';
 import { getServerSession } from 'next-auth';
+import { createUploadthing, type FileRouter } from 'uploadthing/next-legacy';
+
+import { authOptions } from './auth';
 import { prisma } from './db';
 
 const f = createUploadthing();

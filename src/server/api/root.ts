@@ -1,8 +1,10 @@
-import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
-import { z } from 'zod';
-import { prisma } from '../db';
-import { utapi } from 'uploadthing/server';
 import { TRPCError } from '@trpc/server';
+import { utapi } from 'uploadthing/server';
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
+
+import { prisma } from '../db';
 
 /**
  * This is the primary router for your server.
@@ -71,7 +73,7 @@ export const appRouter = createTRPCRouter({
         },
         include: {
           categories: true,
-        }
+        },
       });
 
       if (list?.owner !== ctx?.session?.user?.name) {
@@ -81,7 +83,9 @@ export const appRouter = createTRPCRouter({
         });
       }
 
-      if (!list?.categories.find((category) => category.id === input.categoryId)) {
+      if (
+        !list?.categories.find((category) => category.id === input.categoryId)
+      ) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'Category does not exist',
