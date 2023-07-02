@@ -12,14 +12,12 @@ import { type AppRouter } from '@/server/api/root';
 import { api } from '@/utils/api';
 import { useListId } from '@/utils/useId';
 
-type Unarrayify<T> = T extends Array<infer U> ? U : T;
-
 type ListQuery = UseTRPCQueryResult<
   inferRouterOutputs<AppRouter>['getList'],
   TRPCClientErrorLike<AppRouter>
 >;
 
-type Item = Unarrayify<NonNullable<ListQuery['data']>['items']>;
+type Item = NonNullable<ListQuery['data']>['items'][number];
 
 const ItemDisplay = ({
   item,
