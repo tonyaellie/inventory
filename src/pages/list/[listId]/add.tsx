@@ -1,11 +1,11 @@
 import { api } from '@/utils/api';
 import { UploadButton } from '@/utils/uploadthing';
 import '@uploadthing/react/styles.css';
-import { Category } from '@prisma/client';
 import { type FormEvent, useState } from 'react';
 import Image from 'next/image';
 import { Layout } from '@/components/Layout';
 import { TRPCClientError } from '@trpc/client';
+import { useListId } from '@/utils/useId';
 
 const ImageUploader = ({
   image,
@@ -22,7 +22,11 @@ const ImageUploader = ({
       onClientUploadComplete={(res) => {
         // Do something with the response
         console.log('Files: ', res);
-        setImage(res![0]!.fileUrl);
+        if (!res?.[0]?.fileUrl) {
+          alert('ERROR! No fileUrl returned');
+          return;
+        }
+        setImage(res?.[0]?.fileUrl);
       }}
       onUploadError={(error: Error) => {
         // Do something with the error.
@@ -37,22 +41,45 @@ const CreateNewItem = () => {
     name: '',
     description: '',
     image: '',
-    category: 'BATHROOM' as Category,
+    categoryId: -1,
     quantity: 1,
     bag: 1,
     packed: false,
   });
+
+  const listId = useListId();
+
+  const list = api.getList.useQuery(
+    { listId: listId || -1, includeCategories: true },
+    {
+      enabled: !!listId,
+    }
+  );
   const addItem = api.addItem.useMutation();
+
+  if (!listId) return <span>Loading Id...</span>;
+
+  if (list.error) return <span>Error: {list.error.message}</span>;
+
+  if (!list.data) return <span>Loading...</span>;
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (formState.name === '' || formState.categoryId === -1) {
+      return;
+    }
+
     try {
-      await addItem.mutateAsync(formState);
+      await addItem.mutateAsync({
+        ...formState,
+        listId,
+      });
       setFormState({
         name: '',
         description: '',
         image: '',
-        category: 'BATHROOM' as Category,
+        categoryId: -1,
         quantity: 1,
         bag: 1,
         packed: false,
@@ -106,13 +133,20 @@ const CreateNewItem = () => {
         <select
           className="rounded-lg bg-black px-2 py-1 font-normal"
           onChange={(e) =>
-            setFormState({ ...formState, category: e.target.value as Category })
+            setFormState({ ...formState, categoryId: Number(e.target.value) })
           }
-          value={formState.category}
+          value={formState.categoryId}
         >
-          {Object.keys(Category).map((category) => (
-            <option value={category} key={category} className="bg-black">
-              {category}
+          <option value={-1} className="bg-black" disabled hidden>
+            Select a category
+          </option>
+          {list.data.categories.map((category) => (
+            <option
+              value={category.id}
+              key={`category-${category.id}-select`}
+              className="bg-black"
+            >
+              {category.name}
             </option>
           ))}
         </select>

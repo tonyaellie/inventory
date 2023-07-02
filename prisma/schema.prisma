@@ -13,14 +13,11 @@ datasource db {
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
+    relationMode="prisma"
 }
 
-// TODO: make category a table
-enum Category {
-    KITCHEN
-    BEDROOM
-    BATHROOM
-    PERSONAL
+model unusedImages {
+    id          String   @id @db.VarChar(255)
 }
 
 model items {
@@ -28,10 +25,41 @@ model items {
     name        String   @db.VarChar(255)
     description String   @db.VarChar(1023)
     image       String   @db.VarChar(255)
-    category    Category
+    categoryId  Int
+    category    category @relation(fields: [categoryId], references: [id])
     quantity    Int      @db.TinyInt
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
     bag         Int      @db.TinyInt
     packed      Boolean  @default(false)
+    listId      Int
+    list        lists    @relation(fields: [listId], references: [id])
+    owner       String   @db.VarChar(255)
+
+    @@index([categoryId])
+    @@index([listId])
 }
+
+model lists {
+    id          Int      @id @default(autoincrement())
+    name        String   @db.VarChar(255)
+    owner       String   @db.VarChar(255)
+    createdAt   DateTime @default(now())
+    items       items[]
+    categories  category[]
+    // bags        Int      @db.TinyInt
+}
+
+// this should be named categories
+model category {
+    id          Int      @id @default(autoincrement())
+    name        String   @db.VarChar(255)
+    createdAt   DateTime @default(now())
+    listId      Int
+    list        lists    @relation(fields: [listId], references: [id])
+    items       items[]
+
+    @@index([listId])
+}
+
+// TODO: make these models better

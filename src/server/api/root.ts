@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { z } from 'zod';
 import { prisma } from '../db';
 import { utapi } from 'uploadthing/server';
+import { TRPCError } from '@trpc/server';
 
 /**
  * This is the primary router for your server.
@@ -9,24 +10,122 @@ import { utapi } from 'uploadthing/server';
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  createList: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        categories: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // TODO: use an id instead of name
+      if (!ctx?.session?.user?.name) {
+        throw new Error('Not logged in');
+      }
+      return prisma.lists.create({
+        data: {
+          name: input.name,
+          categories: {
+            create: input.categories.map((category) => ({
+              name: category,
+            })),
+          },
+          owner: ctx.session.user.name,
+        },
+      });
+    }),
+  getLists: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx?.session?.user?.name) {
+      throw new Error('Not logged in');
+    }
+    return prisma.lists.findMany({
+      where: {
+        owner: ctx.session.user.name,
+      },
+    });
+  }),
   addItem: protectedProcedure
     .input(
       z.object({
         name: z.string(),
         description: z.string(),
         image: z.string().url(),
-        category: z.enum(['KITCHEN', 'BEDROOM', 'BATHROOM', 'PERSONAL']),
+        categoryId: z.number().int().positive(),
         quantity: z.number().int().positive(),
         bag: z.number().int().positive().lt(10),
         packed: z.boolean(),
+        listId: z.number().int().positive(),
       })
     )
-    .mutation(async ({ input }) =>
-      prisma.items.create({
-        data: input,
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx?.session?.user?.name) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You must be logged in to add an item',
+        });
+      }
+
+      const list = await prisma.lists.findFirst({
+        where: {
+          id: input.listId,
+        },
+        include: {
+          categories: true,
+        }
+      });
+
+      if (list?.owner !== ctx?.session?.user?.name) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You do not have access to this list',
+        });
+      }
+
+      if (!list?.categories.find((category) => category.id === input.categoryId)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Category does not exist',
+        });
+      }
+
+      // TODO: check if category is valid
+      return prisma.items.create({
+        data: {
+          ...input,
+          owner: ctx.session.user.name,
+        },
+      });
+    }),
+  getList: protectedProcedure
+    .input(
+      z.object({
+        listId: z.number().int().positive(),
+        includeItems: z.boolean().optional(),
+        includeCategories: z.boolean().optional(),
       })
+    )
+    .query(
+      async ({ input: { listId, includeCategories, includeItems }, ctx }) => {
+        const data = await prisma.lists.findFirst({
+          where: {
+            id: listId,
+          },
+          include: {
+            items: includeItems,
+            categories: includeCategories,
+          },
+        });
+
+        if (data?.owner !== ctx?.session?.user?.name) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'You do not have access to this list',
+          });
+        }
+
+        return data;
+      }
     ),
-  getItems: protectedProcedure.query(async () => prisma.items.findMany()),
   deleteItem: protectedProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ input }) => {
@@ -47,10 +146,11 @@ export const appRouter = createTRPCRouter({
         id: z.number().int().positive(),
         name: z.string(),
         description: z.string(),
-        category: z.enum(['KITCHEN', 'BEDROOM', 'BATHROOM', 'PERSONAL']),
+        categoryId: z.number().int().positive(),
         quantity: z.number().int().positive(),
         bag: z.number().int().positive().lt(10),
         packed: z.boolean(),
+        listId: z.number().int().positive(),
       })
     )
     .mutation(async ({ input }) =>
@@ -58,7 +158,10 @@ export const appRouter = createTRPCRouter({
         where: {
           id: input.id,
         },
-        data: input,
+        data: {
+          ...input,
+          updatedAt: new Date(),
+        },
       })
     ),
 });

@@ -1,7 +1,8 @@
 import { Layout } from '@/components/Layout';
 
-const Home = () => {
+const Edit = () => {
+  // TODO: implement
   return <Layout>Hi</Layout>;
 };
 
-export default Home;
+export default Edit;

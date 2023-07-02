@@ -1,6 +1,7 @@
 import { createUploadthing, type FileRouter } from 'uploadthing/next-legacy';
 import { authOptions } from './auth';
 import { getServerSession } from 'next-auth';
+import { prisma } from './db';
 
 const f = createUploadthing();
 
@@ -22,7 +23,11 @@ export const ourFileRouter = {
     .onUploadComplete(({ file }) => {
       // This code RUNS ON YOUR SERVER after upload
       console.log('file url', file.url);
-      // TODO: store urls and later check if they have been used, if not, delete them
+      void prisma.unusedImages.create({
+        data: {
+          id: file.key,
+        },
+      });
     }),
 } satisfies FileRouter;
 

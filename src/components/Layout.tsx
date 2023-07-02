@@ -14,19 +14,20 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         <meta name="robots" content="noindex, nofollow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <main className="text-slate-200 max-w-2xl mx-auto">
+      <main className="mx-auto max-w-2xl text-slate-200">
         <header className="mb-2 flex gap-2 border-b border-slate-200 p-2">
           <Link
-            href="/"
+            // TODO: use the cool segments display, steel from uploadthing
+            href={sessionData?.user.name === 'tonya_' ? '/list' : '/'}
             className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
           >
             Home
           </Link>
           <Link
-            href="/add"
+            href="/list/new"
             className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
           >
-            Add item
+            New
           </Link>
           <div className="flex-grow" />
           {sessionData?.user.name === 'tonya_' ? (
