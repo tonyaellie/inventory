@@ -284,7 +284,6 @@ const Home = () => {
 
   const listId = useListId();
 
-  // TODO: debug why this is being fetched each time the filter changes
   const list = api.getList.useQuery(
     { listId: listId || -1, includeCategories: true, includeItems: true },
     {

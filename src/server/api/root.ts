@@ -46,6 +46,88 @@ export const appRouter = createTRPCRouter({
       },
     });
   }),
+  getList: protectedProcedure
+    .input(
+      z.object({
+        listId: z.number().int().positive(),
+        includeItems: z.boolean().optional(),
+        includeCategories: z.boolean().optional(),
+      })
+    )
+    .query(
+      async ({ input: { listId, includeCategories, includeItems }, ctx }) => {
+        const data = await prisma.lists.findFirst({
+          where: {
+            id: listId,
+          },
+          include: {
+            items: includeItems,
+            categories: includeCategories,
+          },
+        });
+
+        if (data?.owner !== ctx?.session?.user?.name) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'You do not have access to this list',
+          });
+        }
+
+        return data;
+      }
+    ),
+  deleteList: protectedProcedure
+    .input(z.object({ listId: z.number().int().positive() }))
+    .mutation(async ({ input }) => {
+      const list = await prisma.lists.delete({
+        where: {
+          id: input.listId,
+        },
+        include: {
+          items: true,
+          categories: true,
+        },
+      });
+      const deleteImages = await utapi.deleteFiles(
+        list.items.map((item) =>
+          item.image.replace('https://uploadthing.com/f/', '')
+        )
+      );
+      console.log('deleted', list.name, deleteImages);
+      return list;
+    }),
+  updateList: protectedProcedure
+    .input(
+      z.object({
+        listId: z.number().int().positive(),
+        name: z.string(),
+        categoriesAdded: z.array(z.string()),
+        categoriesRemoved: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const list = await prisma.lists.update({
+        where: {
+          id: input.listId,
+        },
+        data: {
+          name: input.name,
+          categories: {
+            createMany: {
+              data: input.categoriesAdded.map((category) => ({
+                name: category,
+              })),
+            },
+            deleteMany: {
+              name: {
+                in: input.categoriesRemoved,
+              },
+            },
+          },
+        },
+      });
+      return list;
+    }),
   addItem: protectedProcedure
     .input(
       z.object({
@@ -100,36 +182,6 @@ export const appRouter = createTRPCRouter({
         },
       });
     }),
-  getList: protectedProcedure
-    .input(
-      z.object({
-        listId: z.number().int().positive(),
-        includeItems: z.boolean().optional(),
-        includeCategories: z.boolean().optional(),
-      })
-    )
-    .query(
-      async ({ input: { listId, includeCategories, includeItems }, ctx }) => {
-        const data = await prisma.lists.findFirst({
-          where: {
-            id: listId,
-          },
-          include: {
-            items: includeItems,
-            categories: includeCategories,
-          },
-        });
-
-        if (data?.owner !== ctx?.session?.user?.name) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'You do not have access to this list',
-          });
-        }
-
-        return data;
-      }
-    ),
   deleteItem: protectedProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ input }) => {
