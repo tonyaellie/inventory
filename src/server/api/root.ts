@@ -136,7 +136,7 @@ export const appRouter = createTRPCRouter({
         image: z.string().url(),
         categoryId: z.number().int().positive(),
         quantity: z.number().int().positive(),
-        bag: z.number().int().positive().lt(10),
+        bag: z.number().int().positive().lte(10),
         packed: z.boolean(),
         listId: z.number().int().positive(),
       })
@@ -204,7 +204,7 @@ export const appRouter = createTRPCRouter({
         description: z.string(),
         categoryId: z.number().int().positive(),
         quantity: z.number().int().positive(),
-        bag: z.number().int().positive().lt(10),
+        bag: z.number().int().positive().lte(10),
         packed: z.boolean(),
         listId: z.number().int().positive(),
       })

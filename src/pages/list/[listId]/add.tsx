@@ -183,18 +183,17 @@ const CreateNewItem = () => {
           }
           value={formState.bag}
         >
-          <option value={1} className="bg-black">
-            1
-          </option>
-          <option value={2} className="bg-black">
-            2
-          </option>
-          <option value={3} className="bg-black">
-            3
-          </option>
-          <option value={4} className="bg-black">
-            4
-          </option>
+          {
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((bag) => (
+              <option
+                value={bag}
+                key={`bag-${bag}-select`}
+                className="bg-black"
+              >
+                {bag}
+              </option>
+            ))
+          }
         </select>
       </label>
       <label className="flex flex-col gap-1 font-bold">

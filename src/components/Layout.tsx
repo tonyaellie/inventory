@@ -14,7 +14,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         <meta name="robots" content="noindex, nofollow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <main className="mx-auto max-w-2xl text-slate-200">
+      <main className="mx-auto max-w-2xl text-slate-200 accent-purple-700">
         <header className="mb-2 flex gap-2 border-b border-slate-200 p-2">
           <Link
             // TODO: use the cool segments display, steel from uploadthing
