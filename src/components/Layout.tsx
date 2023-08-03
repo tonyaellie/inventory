@@ -18,7 +18,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         <header className="mb-2 flex gap-2 border-b border-slate-200 p-2">
           <Link
             // TODO: use the cool segments display, steel from uploadthing
-            href={sessionData?.user.name === 'tonya_' ? '/list' : '/'}
+            href={sessionData?.user?.name === 'tonya_' ? '/list' : '/'}
             className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
           >
             Home
@@ -30,7 +30,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             New
           </Link>
           <div className="flex-grow" />
-          {sessionData?.user.name === 'tonya_' ? (
+          {sessionData?.user?.name === 'tonya_' ? (
             <button
               onClick={() => void signOut()}
               className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-200 hover:text-slate-900"
@@ -46,7 +46,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             </button>
           )}
         </header>
-        {sessionData?.user.name === 'tonya_' ? (
+        {sessionData?.user?.name === 'tonya_' ? (
           <div className="mx-4">{children}</div>
         ) : (
           <div className="mx-4">sign in as authorised user</div>
