@@ -18,18 +18,23 @@ const ImageUploader = ({
   setImage: (image: string) => void;
 }) => {
   return image ? (
-    <Image src={image} alt="preview" width={64} height={64} />
+    <Image
+      src={`https://utfs.io/f/${image}`}
+      alt="preview"
+      width={64}
+      height={64}
+    />
   ) : (
     <UploadButton
       endpoint="imageUploader"
       onClientUploadComplete={(res) => {
         // Do something with the response
         console.log('Files: ', res);
-        if (!res?.[0]?.fileUrl) {
-          alert('ERROR! No fileUrl returned');
+        if (!res?.[0]?.fileKey) {
+          alert('ERROR! No fileKey returned');
           return;
         }
-        setImage(res?.[0]?.fileUrl);
+        setImage(res?.[0]?.fileKey);
       }}
       onUploadError={(error: Error) => {
         // Do something with the error.
@@ -183,17 +188,11 @@ const CreateNewItem = () => {
           }
           value={formState.bag}
         >
-          {
-            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((bag) => (
-              <option
-                value={bag}
-                key={`bag-${bag}-select`}
-                className="bg-black"
-              >
-                {bag}
-              </option>
-            ))
-          }
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((bag) => (
+            <option value={bag} key={`bag-${bag}-select`} className="bg-black">
+              {bag}
+            </option>
+          ))}
         </select>
       </label>
       <label className="flex flex-col gap-1 font-bold">

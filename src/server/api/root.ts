@@ -89,9 +89,7 @@ export const appRouter = createTRPCRouter({
         },
       });
       const deleteImages = await utapi.deleteFiles(
-        list.items.map((item) =>
-          item.image.replace('https://uploadthing.com/f/', '')
-        )
+        list.items.map((item) => item.image)
       );
       console.log('deleted', list.name, deleteImages);
       return list;
@@ -190,9 +188,7 @@ export const appRouter = createTRPCRouter({
           id: input.id,
         },
       });
-      const deleteImage = await utapi.deleteFiles([
-        item.image.replace('https://uploadthing.com/f/', ''),
-      ]);
+      const deleteImage = await utapi.deleteFiles([item.image]);
       console.log('deleted', item.name, deleteImage);
       return item;
     }),
