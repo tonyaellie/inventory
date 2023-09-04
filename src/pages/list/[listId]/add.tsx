@@ -19,10 +19,12 @@ const ImageUploader = ({
 }) => {
   return image ? (
     <Image
+      className="hover:border-red-600 border-2 border-transparent"
       src={`https://utfs.io/f/${image}`}
       alt="preview"
       width={64}
       height={64}
+      onClick={() => setImage('')}
     />
   ) : (
     <UploadButton
