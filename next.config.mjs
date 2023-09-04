@@ -24,7 +24,7 @@ const config = {
   },
 
   images: {
-    domains: ['uploadthing.com'],
+    domains: ['uploadthing.com', 'utfs.io'],
   },
 };
 
