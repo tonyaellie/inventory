@@ -84,7 +84,12 @@ const ItemDisplay = ({
     <div>
       <div className="flex justify-between">
         <div className="flex">
-          <Image src={item.image} alt={item.name} width={100} height={100} />
+          <Image
+            src={`https://utfs.io/f/${item.image}`}
+            alt={item.name}
+            width={100}
+            height={100}
+          />
           <div className="mx-2 flex flex-col">
             <div className="flex gap-2">
               <span className="font-bold">{item.name}</span>
