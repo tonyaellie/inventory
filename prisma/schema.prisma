@@ -18,6 +18,8 @@ datasource db {
 
 model unusedImages {
     id          String   @id @db.VarChar(255)
+
+    @@map("inventory_unusedImages")
 }
 
 model items {
@@ -38,6 +40,7 @@ model items {
 
     @@index([categoryId])
     @@index([listId])
+    @@map("inventory_items")
 }
 
 model lists {
@@ -48,6 +51,8 @@ model lists {
     items       items[]
     categories  category[]
     // bags        Int      @db.TinyInt
+
+    @@map("inventory_lists")
 }
 
 // this should be named categories
@@ -60,6 +65,7 @@ model category {
     items       items[]
 
     @@index([listId])
+    @@map("inventory_category")
 }
 
 // TODO: make these models better
